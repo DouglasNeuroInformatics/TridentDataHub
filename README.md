@@ -12,40 +12,30 @@ interface Dataset {
   datasetName: string; // Name of the dataset
   datasetDescription: string; // Detailed description of the dataset
   datasetType: string; // Type/category of research data
-  disease: string;              // Associated disease
-  drug: string;                 // Associated drug/intervention
+  disease: string; // Associated disease
+  drug: string; // Associated drug/intervention
   url: string; // URL to access the dataset
 }
 ```
 
 ## Adding Datasets
 
-Edit `src/data.ts` to add new datasets. Use proper academic titles, placeholder emails for privacy, and be descriptive with dataset names and descriptions.
+Datasets are stored in `src/data.tsv` using tab-separated values format.
 
-```typescript
-import type { Dataset } from "./types";
+### TSV Format
 
-export const datasets: Dataset[] = [
-  {
-    researcher: "Dr. Researcher Name",
-    researcherEmail: "email@placeholder.ca",
-    institution: "Institution Name",
-    datasetName: "Your Dataset Name",
-    datasetDescription: "Clear description of what the dataset contains",
-    datasetType: "Dataset Type/Category",
-    disease: "Associated Disease",
-    drug: "Associated Drug (or NA)",
-    url: "https://doi.org/10.xxxx/xxxxxx",
-  },
-];
+```tsv
+researcher\tresearcherEmail\tinstitution\tdatasetName\tdatasetDescription\tdatasetType\tdisease\tdrug\turl
+Dr. Stephanie Tullo\ts.tullo@placeholder.ca\tDouglas\tDataset Name\tDescription here\tDataset Type\tDisease\tDrug\thttps://doi.org/10.xxxx/xxxxxx
 ```
 
-**Best Practices:**
+### Field Guidelines
 
-- Use consistent `datasetType` values for filtering
-- Use "NA" for non-applicable `disease` or `drug` fields
-- Include manuscript titles in dataset names when applicable
-- Use proper DOI links when available
+- **Use tabs** between columns (not spaces)
+- **Consistent dataset types** for effective filtering
+- **Use "NA"** for non-applicable disease/drug fields
+- **DOI links** preferred when available
+- **Descriptive names** including manuscript titles when applicable
 
 ## Features
 
@@ -69,7 +59,8 @@ export const datasets: Dataset[] = [
 TridentDataHub/
 ├── src/
 │   ├── types.ts          # TypeScript type definitions
-│   ├── data.ts           # Dataset data and filter exports
+│   ├── data.tsv          # Dataset data (tab-separated values)
+│   ├── data.ts           # TSV parser and filter exports
 │   ├── App.tsx           # Main application component
 │   ├── main.tsx          # Application entry point
 │   ├── styles.css        # Global styles and CSS variables
