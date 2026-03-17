@@ -1,17 +1,19 @@
 export interface Dataset {
-  id: string
-  title: string
-  description: string
-  datatype: string
+  research: string
+  researcherEmail: string
   institution: string
-  doi: string
-  repository: 'borealis' | 'zenodo'
-  year?: number
-  authors?: string[]
-  tags?: string[]
+  datasetName: string
+  datasetDescription: string
+  datasetType: string
+  disease?: string
+  drug?: string
+  url: string
 }
 
 export interface FilterState {
-  datatype: string | null
+  datasetType: string | null
   institution: string | null
+  disease: string | null
+  drug: string | null
 }
+

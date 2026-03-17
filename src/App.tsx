@@ -8,33 +8,25 @@ import {
   type SortingState,
   type ColumnDef,
 } from '@tanstack/react-table'
-import { datasets, datatypes, institutions } from './data'
+import { datasets, datasetTypes, institutions, diseases, drugs } from './data'
 import type { Dataset, FilterState } from './types'
 import './styles.css'
 
 const columnHelper = createColumnHelper<Dataset>()
 
 const columns: ColumnDef<Dataset, any>[] = [
-  columnHelper.accessor('title', {
-    header: 'Title',
+  columnHelper.accessor('research', {
+    header: 'Research',
     cell: (info) => (
       <div className="font-medium text-gray-900">{info.getValue()}</div>
     ),
   }),
-  columnHelper.accessor('description', {
-    header: 'Description',
+  columnHelper.accessor('researcherEmail', {
+    header: 'Researcher Email',
     cell: (info) => (
-      <div className="text-sm text-gray-600 line-clamp-2 max-w-md">
+      <a href={`mailto:${info.getValue()}`} className="text-sm text-blue-600 hover:text-blue-800">
         {info.getValue()}
-      </div>
-    ),
-  }),
-  columnHelper.accessor('datatype', {
-    header: 'Datatype',
-    cell: (info) => (
-      <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
-        {info.getValue()}
-      </span>
+      </a>
     ),
   }),
   columnHelper.accessor('institution', {
@@ -43,65 +35,77 @@ const columns: ColumnDef<Dataset, any>[] = [
       <span className="text-sm text-gray-700">{info.getValue()}</span>
     ),
   }),
-  columnHelper.accessor('year', {
-    header: 'Year',
+  columnHelper.accessor('datasetName', {
+    header: 'Dataset Name',
     cell: (info) => (
-      <span className="text-sm text-gray-600">{info.getValue() || 'N/A'}</span>
+      <div className="font-medium text-gray-900">{info.getValue()}</div>
     ),
   }),
-  columnHelper.accessor('repository', {
-    header: 'Repository',
+  columnHelper.accessor('datasetDescription', {
+    header: 'Dataset Description',
     cell: (info) => (
-      <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
-        {info.getValue() === 'borealis' ? 'Borealis' : 'Zenodo'}
+      <div className="text-sm text-gray-600 line-clamp-2 max-w-md">
+        {info.getValue()}
+      </div>
+    ),
+  }),
+  columnHelper.accessor('datasetType', {
+    header: 'Dataset Type',
+    cell: (info) => (
+      <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
+        {info.getValue()}
       </span>
     ),
   }),
-  columnHelper.accessor('doi', {
-    header: 'DOI',
+  columnHelper.accessor('disease', {
+    header: 'Disease',
     cell: (info) => (
-      <span className="text-xs font-mono text-gray-600">{info.getValue()}</span>
+      <span className="text-sm text-gray-700">{info.getValue() || 'N/A'}</span>
     ),
   }),
-  columnHelper.accessor((row) => row, {
-    id: 'actions',
-    header: 'Actions',
-    cell: (info) => {
-      const dataset = info.row.original
-      const url =
-        dataset.repository === 'borealis'
-          ? `https://borealisdata.ca/dataset.xhtml?persistentId=doi:${dataset.doi}`
-          : `https://doi.org/${dataset.doi}`
-      const repoName = dataset.repository === 'borealis' ? 'Borealis' : 'Zenodo'
-
-      return (
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-        >
-          View on {repoName}
-        </a>
-      )
-    },
+  columnHelper.accessor('drug', {
+    header: 'Drug',
+    cell: (info) => (
+      <span className="text-sm text-gray-700">{info.getValue() || 'N/A'}</span>
+    ),
+  }),
+  columnHelper.accessor('url', {
+    header: 'URL',
+    cell: (info) => (
+      <a
+        href={info.getValue()}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-xs font-mono text-blue-600 hover:text-blue-800"
+      >
+        {info.getValue()}
+      </a>
+    ),
   }),
 ]
 
 function App() {
   const [filters, setFilters] = useState<FilterState>({
-    datatype: null,
+    datasetType: null,
     institution: null,
+    disease: null,
+    drug: null,
   })
   const [sorting, setSorting] = useState<SortingState>([])
 
   // Filter datasets based on selected filters
   const filteredDatasets = useMemo(() => {
     return datasets.filter((dataset) => {
-      if (filters.datatype && dataset.datatype !== filters.datatype) {
+      if (filters.datasetType && dataset.datasetType !== filters.datasetType) {
         return false
       }
       if (filters.institution && dataset.institution !== filters.institution) {
+        return false
+      }
+      if (filters.disease && dataset.disease !== filters.disease) {
+        return false
+      }
+      if (filters.drug && dataset.drug !== filters.drug) {
         return false
       }
       return true
@@ -109,10 +113,10 @@ function App() {
   }, [filters])
 
   const clearFilters = () => {
-    setFilters({ datatype: null, institution: null })
+    setFilters({ datasetType: null, institution: null, disease: null, drug: null })
   }
 
-  const hasActiveFilters = filters.datatype || filters.institution
+  const hasActiveFilters = filters.datasetType || filters.institution || filters.disease || filters.drug
 
   // Table setup
   const table = useReactTable({
@@ -143,37 +147,29 @@ function App() {
           <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-900">Filter Datasets</h2>
-              {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  Clear Filters
-                </button>
-              )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Datatype Filter */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Dataset Type Filter */}
               <div>
                 <label
-                  htmlFor="datatype-filter"
+                  htmlFor="datasetType-filter"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Datatype
+                  Dataset Type
                 </label>
                 <select
-                  id="datatype-filter"
-                  value={filters.datatype || ''}
+                  id="datasetType-filter"
+                  value={filters.datasetType || ''}
                   onChange={(e) =>
-                    setFilters({ ...filters, datatype: e.target.value || null })
+                    setFilters({ ...filters, datasetType: e.target.value || null })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value="">All Datatypes</option>
-                  {datatypes.map((datatype) => (
-                    <option key={datatype} value={datatype}>
-                      {datatype}
+                  <option value="">All Dataset Types</option>
+                  {datasetTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
                     </option>
                   ))}
                 </select>
@@ -199,6 +195,56 @@ function App() {
                   {institutions.map((institution) => (
                     <option key={institution} value={institution}>
                       {institution}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Disease Filter */}
+              <div>
+                <label
+                  htmlFor="disease-filter"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Disease
+                </label>
+                <select
+                  id="disease-filter"
+                  value={filters.disease || ''}
+                  onChange={(e) =>
+                    setFilters({ ...filters, disease: e.target.value || null })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">All Diseases</option>
+                  {diseases.map((disease) => (
+                    <option key={disease} value={disease}>
+                      {disease}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Drug Filter */}
+              <div>
+                <label
+                  htmlFor="drug-filter"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Drug
+                </label>
+                <select
+                  id="drug-filter"
+                  value={filters.drug || ''}
+                  onChange={(e) =>
+                    setFilters({ ...filters, drug: e.target.value || null })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">All Drugs</option>
+                  {drugs.map((drug) => (
+                    <option key={drug} value={drug}>
+                      {drug}
                     </option>
                   ))}
                 </select>
@@ -273,14 +319,6 @@ function App() {
               <p className="mt-1 text-sm text-gray-500">
                 Try adjusting your filters to see more results.
               </p>
-              <div className="mt-6">
-                <button
-                  onClick={clearFilters}
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  Clear Filters
-                </button>
-              </div>
             </div>
           )}
         </div>
