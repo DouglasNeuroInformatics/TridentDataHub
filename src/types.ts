@@ -5,9 +5,8 @@ export interface Dataset {
   datasetName: string
   datasetDescription: string
   datasetType: string
-  disease?: string
-  drug?: string
-  url: string
+  disease: string
+  drug: string
 }
 
 export interface FilterState {

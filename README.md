@@ -1,107 +1,89 @@
 # TridentDataHub
 
-## Dataset Type Definition
+A modern web application for browsing and filtering research datasets with a clean, responsive interface.
 
-### TypeScript Interface
+## Dataset Schema
 
 ```typescript
 interface Dataset {
-  id: string; // Unique identifier for the dataset
-  title: string; // Human-readable dataset title
-  description: string; // Detailed description of the dataset content
-  datatype: string; // Category/type of research data
+  researcher: string; // Primary researcher name
+  researcherEmail: string; // Researcher email address
   institution: string; // Research institution or organization
-  doi: string; // Digital Object Identifier (e.g., "10.5281/zenodo.12345")
-  repository: "borealis" | "zenodo"; // Repository where data is hosted
-  year?: number; // Publication year (optional)
-  authors?: string[]; // List of authors (optional)
-  tags?: string[]; // Keywords for categorization (optional)
+  datasetName: string; // Name of the dataset
+  datasetDescription: string; // Detailed description of the dataset
+  datasetType: string; // Type/category of research data
+  disease: string;              // Associated disease
+  drug: string;                 // Associated drug/intervention
+  url: string; // URL to access the dataset
 }
 ```
 
-## Field Descriptions
-
-### Required Fields
-
-| Field         | Type                     | Description                       | Example                                               |
-| ------------- | ------------------------ | --------------------------------- | ----------------------------------------------------- |
-| `id`          | `string`                 | Unique identifier for the dataset | `"arctic-permafrost-2024"`                            |
-| `title`       | `string`                 | Human-readable title              | `"Arctic Permafrost Carbon Dynamics Analysis"`        |
-| `description` | `string`                 | Detailed description of content   | `"Comprehensive dataset measuring carbon release..."` |
-| `datatype`    | `string`                 | Research category                 | `"Climate Data"`, `"Genomic"`, `"Imaging"`            |
-| `institution` | `string`                 | Institution name                  | `"University of British Columbia"`                    |
-| `doi`         | `string`                 | DOI identifier                    | `"10.5281/zenodo.11223344"`                           |
-| `repository`  | `'borealis' \| 'zenodo'` | Data repository                   | `"borealis"` or `"zenodo"`                            |
-
-### Optional Fields
-
-| Field     | Type       | Description      | Example                                      |
-| --------- | ---------- | ---------------- | -------------------------------------------- |
-| `year`    | `number`   | Publication year | `2024`                                       |
-| `authors` | `string[]` | Author names     | `["Dr. Sarah Chen", "Dr. Michael Thompson"]` |
-| `tags`    | `string[]` | Keywords         | `["climate-change", "carbon-cycle"]`         |
-
 ## Adding Datasets
 
-### Location
-
-Edit `src/data.ts` to add new datasets:
+Edit `src/data.ts` to add new datasets. Use proper academic titles, placeholder emails for privacy, and be descriptive with dataset names and descriptions.
 
 ```typescript
 import type { Dataset } from "./types";
 
 export const datasets: Dataset[] = [
-  // ... existing datasets
-
   {
-    id: "unique-id-123",
-    title: "Your Dataset Title",
-    description: "Clear description of what the dataset contains",
-    datatype: "Your Category",
-    institution: "Your Institution",
-    doi: "10.5281/zenodo.XXXXXXXX", // or 10.11587/XXXXXXXX for Borealis
-    repository: "zenodo", // or 'borealis'
-    year: 2024,
-    authors: ["Author One", "Author Two"],
-    tags: ["keyword1", "keyword2", "keyword3"],
+    researcher: "Dr. Researcher Name",
+    researcherEmail: "email@placeholder.ca",
+    institution: "Institution Name",
+    datasetName: "Your Dataset Name",
+    datasetDescription: "Clear description of what the dataset contains",
+    datasetType: "Dataset Type/Category",
+    disease: "Associated Disease",
+    drug: "Associated Drug (or NA)",
+    url: "https://doi.org/10.xxxx/xxxxxx",
   },
 ];
 ```
 
-### DOI Format Guidelines
+**Best Practices:**
 
-**Borealis DOIs:**
+- Use consistent `datasetType` values for filtering
+- Use "NA" for non-applicable `disease` or `drug` fields
+- Include manuscript titles in dataset names when applicable
+- Use proper DOI links when available
 
-- Format: `10.11587/XXXXXXXX`
-- Repository: `'borealis'`
-- URL pattern: `https://borealisdata.ca/dataset.xhtml?persistentId=doi:{doi}`
+## Features
 
-**Zenodo DOIs:**
+- **Multi-Filter System**: Filter by dataset type, institution, disease, and drug
+- **Sortable Columns**: Click column headers to sort ascending/descending
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
+- **Clean Table Layout**: Professional styling with hover effects
+- **Email Integration**: Clickable email addresses for researcher contact
 
-- Format: `10.5281/zenodo.XXXXXXXX`
-- Repository: `'zenodo'`
-- URL pattern: `https://doi.org/{doi}`
+## Development
 
-### Best Practices
+### Technical Stack
 
-1. **Unique IDs**: Use descriptive, unique identifiers (e.g., `"arctic-permafrost-2024"`)
-2. **Descriptions**: Be specific about dataset content, scope, and methodology
-3. **Datatypes**: Use consistent category names (check existing datatypes first)
-4. **Institutions**: Use full, official institution names
-5. **Tags**: Include 3-5 relevant keywords for discoverability
-6. **DOIs**: Verify DOI format matches the repository
+- **React 18** with TypeScript
+- **Vite** for fast development and building
+- **TanStack Table** for advanced table functionality
 
-### Automatic Filters
+### Project Structure
 
-The table automatically extracts unique values for:
+```
+TridentDataHub/
+├── src/
+│   ├── types.ts          # TypeScript type definitions
+│   ├── data.ts           # Dataset data and filter exports
+│   ├── App.tsx           # Main application component
+│   ├── main.tsx          # Application entry point
+│   ├── styles.css        # Global styles and CSS variables
+│   └── index.css         # Additional styles
+├── index.html            # HTML template
+├── package.json          # Dependencies and scripts
+└── vite.config.ts        # Vite configuration
+```
 
-- **Datatype filter**: Derived from all `datatype` values
-- **Institution filter**: Derived from all `institution` values
+### Available Scripts
 
-New categories are automatically included when you add datasets with new values.
-
-## Data Location
-
-- **Type definition**: `src/types.ts`
-- **Dataset data**: `src/data.ts`
-- **Main component**: `src/App.tsx`
+```bash
+npm install              # Install dependencies
+npm run dev             # Start development server
+npm run build           # Build for production
+npm run preview         # Preview production build
+```
