@@ -44,7 +44,7 @@ const columns: ColumnDef<Dataset, any>[] = [
   columnHelper.accessor('datasetDescription', {
     header: 'Dataset Description',
     cell: (info) => (
-      <div className="text-sm text-gray-600 line-clamp-2 max-w-md">
+      <div className="text-sm text-gray-600">
         {info.getValue()}
       </div>
     ),
