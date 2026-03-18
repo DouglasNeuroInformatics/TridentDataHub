@@ -1,6 +1,11 @@
+
+
 # TridentDataHub
 
-A modern web application for browsing and filtering research datasets with a clean, responsive interface.
+A modern web application for browsing and filtering research datasets with a clean, responsive interface.  
+https://douglasneuroinformatics.github.io/TridentDataHub/
+
+
 
 ## Dataset Schema
 
