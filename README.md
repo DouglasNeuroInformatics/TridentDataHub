@@ -49,7 +49,7 @@ Dr. Stephanie Tullo\ts.tullo@placeholder.ca\tDouglas\tDataset Name\tDescription 
 
 ### Technical Stack
 
-- **React 18** with TypeScript
+- **React 19** with TypeScript
 - **Vite** for fast development and building
 - **TanStack Table** for advanced table functionality
 
