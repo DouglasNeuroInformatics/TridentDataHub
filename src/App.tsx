@@ -163,6 +163,7 @@ function App() {
             alt="Trident Preclinical Trials"
             className="logo"
           />
+          <div className="title">Data Hub</div>
         </div>
       </header>
 
@@ -205,11 +206,7 @@ function App() {
                 </button>
               ))}
               {activeFilters.length >= 2 && (
-                <button
-                  type="button"
-                  className="clear-all"
-                  onClick={clearAll}
-                >
+                <button type="button" className="clear-all" onClick={clearAll}>
                   Clear all
                 </button>
               )}
@@ -243,11 +240,7 @@ function App() {
                               ? "descending"
                               : "none";
                         return (
-                          <th
-                            key={h.id}
-                            scope="col"
-                            aria-sort={ariaSort}
-                          >
+                          <th key={h.id} scope="col" aria-sort={ariaSort}>
                             <button
                               type="button"
                               className="sort-btn"
@@ -294,11 +287,7 @@ function App() {
                   : "No datasets available."}
               </p>
               {hasActiveFilters && (
-                <button
-                  type="button"
-                  className="clear-all"
-                  onClick={clearAll}
-                >
+                <button type="button" className="clear-all" onClick={clearAll}>
                   Clear filters
                 </button>
               )}
