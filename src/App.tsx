@@ -1,330 +1,336 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo } from "react";
 import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
   flexRender,
   createColumnHelper,
-  type SortingState,
-  type ColumnDef,
-} from '@tanstack/react-table'
-import { datasets, datasetTypes, institutions, diseases, drugs } from './data'
-import type { Dataset, FilterState } from './types'
-import './styles.css'
+} from "@tanstack/react-table";
+import { datasets, datasetTypes, institutions, diseases, drugs } from "./data";
+import type { Dataset, FilterState } from "./types";
+import "./styles.css";
 
-const columnHelper = createColumnHelper<Dataset>()
+const FILTERS = [
+  { key: "datasetType", label: "Dataset Type", options: datasetTypes },
+  { key: "institution", label: "Institution", options: institutions },
+  { key: "disease", label: "Disease", options: diseases },
+  { key: "drug", label: "Drug", options: drugs },
+] as const satisfies ReadonlyArray<{
+  key: keyof FilterState;
+  label: string;
+  options: readonly string[];
+}>;
 
-const columns: ColumnDef<Dataset, any>[] = [
-  columnHelper.accessor('researcher', {
-    header: 'Researcher',
+const EMPTY_FILTERS: FilterState = {
+  datasetType: null,
+  institution: null,
+  disease: null,
+  drug: null,
+};
+
+const columnHelper = createColumnHelper<Dataset>();
+
+const columns = [
+  columnHelper.accessor("researcher", { header: "Researcher" }),
+  columnHelper.accessor("researcherEmail", {
+    header: "Email",
     cell: (info) => (
-      <div className="font-medium text-gray-900">{info.getValue()}</div>
-    ),
-  }),
-  columnHelper.accessor('researcherEmail', {
-    header: 'Researcher Email',
-    cell: (info) => (
-      <a href={`mailto:${info.getValue()}`} className="text-sm text-blue-600 hover:text-blue-800">
+      <a href={`mailto:${info.getValue()}`} className="link">
         {info.getValue()}
       </a>
     ),
   }),
-  columnHelper.accessor('institution', {
-    header: 'Institution',
+  columnHelper.accessor("institution", { header: "Institution" }),
+  columnHelper.accessor("datasetName", { header: "Dataset" }),
+  columnHelper.accessor("datasetDescription", {
+    header: "Description",
     cell: (info) => (
-      <span className="text-sm text-gray-700">{info.getValue()}</span>
-    ),
-  }),
-  columnHelper.accessor('datasetName', {
-    header: 'Dataset Name',
-    cell: (info) => (
-      <div className="font-medium text-gray-900">{info.getValue()}</div>
-    ),
-  }),
-  columnHelper.accessor('datasetDescription', {
-    header: 'Dataset Description',
-    cell: (info) => (
-      <div className="text-sm text-gray-600">
-        {info.getValue()}
-      </div>
-    ),
-  }),
-  columnHelper.accessor('datasetType', {
-    header: 'Dataset Type',
-    cell: (info) => (
-      <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
+      <span className="desc" title={info.getValue()}>
         {info.getValue()}
       </span>
     ),
   }),
-  columnHelper.accessor('disease', {
-    header: 'Disease',
-    cell: (info) => (
-      <span className="text-sm text-gray-700">{info.getValue() || 'N/A'}</span>
-    ),
+  columnHelper.accessor("datasetType", { header: "Type" }),
+  columnHelper.accessor("disease", {
+    header: "Disease",
+    cell: (info) => info.getValue() || <span className="null">—</span>,
   }),
-  columnHelper.accessor('drug', {
-    header: 'Drug',
-    cell: (info) => (
-      <span className="text-sm text-gray-700">{info.getValue() || 'N/A'}</span>
-    ),
+  columnHelper.accessor("drug", {
+    header: "Drug",
+    cell: (info) => info.getValue() || <span className="null">—</span>,
   }),
-  columnHelper.accessor('url', {
-    header: 'URL',
-    cell: (info) => (
-      <a
-        href={info.getValue()}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-xs font-mono text-blue-600 hover:text-blue-800"
-      >
-        {info.getValue()}
-      </a>
-    ),
+  columnHelper.accessor("url", {
+    header: "Source",
+    cell: (info) => {
+      const url = info.getValue();
+      if (!url) return <span className="null">—</span>;
+      let display = url;
+      try {
+        display = new URL(url).host.replace(/^www\./, "");
+      } catch {
+        /* keep raw */
+      }
+      return (
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="link"
+        >
+          {display}
+        </a>
+      );
+    },
   }),
-]
+];
 
 function App() {
-  const [filters, setFilters] = useState<FilterState>({
-    datasetType: null,
-    institution: null,
-    disease: null,
-    drug: null,
-  })
-  const [sorting, setSorting] = useState<SortingState>([])
+  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
+  const [sorting, setSorting] = useState<SortingState>([]);
 
-  // Filter datasets based on selected filters
-  const filteredDatasets = useMemo(() => {
-    return datasets.filter((dataset) => {
-      if (filters.datasetType && dataset.datasetType !== filters.datasetType) {
-        return false
-      }
-      if (filters.institution && dataset.institution !== filters.institution) {
-        return false
-      }
-      if (filters.disease && dataset.disease !== filters.disease) {
-        return false
-      }
-      if (filters.drug && dataset.drug !== filters.drug) {
-        return false
-      }
-      return true
-    })
-  }, [filters])
+  const filteredDatasets = useMemo(
+    () =>
+      datasets.filter((d) => {
+        if (filters.datasetType && d.datasetType !== filters.datasetType)
+          return false;
+        if (filters.institution && d.institution !== filters.institution)
+          return false;
+        if (filters.disease && d.disease !== filters.disease) return false;
+        if (filters.drug && d.drug !== filters.drug) return false;
+        return true;
+      }),
+    [filters],
+  );
 
-  const clearFilters = () => {
-    setFilters({ datasetType: null, institution: null, disease: null, drug: null })
-  }
+  // Per-option counts: count rows matching every OTHER active filter,
+  // so values update honestly as the user narrows the view.
+  const optionCounts = useMemo(() => {
+    const result = {
+      datasetType: {} as Record<string, number>,
+      institution: {} as Record<string, number>,
+      disease: {} as Record<string, number>,
+      drug: {} as Record<string, number>,
+    };
+    for (const key of Object.keys(result) as (keyof FilterState)[]) {
+      for (const d of datasets) {
+        let match = true;
+        for (const otherKey of Object.keys(filters) as (keyof FilterState)[]) {
+          if (otherKey === key) continue;
+          const v = filters[otherKey];
+          if (v && d[otherKey] !== v) {
+            match = false;
+            break;
+          }
+        }
+        if (match) {
+          const val = d[key];
+          if (val) result[key][val] = (result[key][val] || 0) + 1;
+        }
+      }
+    }
+    return result;
+  }, [filters]);
 
-  const hasActiveFilters = filters.datasetType || filters.institution || filters.disease || filters.drug
+  const activeFilters = FILTERS.flatMap((f) => {
+    const value = filters[f.key];
+    return value ? [{ key: f.key, label: f.label, value }] : [];
+  });
 
-  // Table setup
+  const clearFilter = (key: keyof FilterState) =>
+    setFilters((prev) => ({ ...prev, [key]: null }));
+
+  const clearAll = () => setFilters(EMPTY_FILTERS);
+
   const table = useReactTable({
     data: filteredDatasets,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    state: {
-      sorting,
-    },
+    state: { sorting },
     onSortingChange: setSorting,
-  })
+  });
+
+  const hasActiveFilters = activeFilters.length > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">TridentDataHub</h1>
-          <p className="text-gray-600 mt-1">Browse and filter research datasets</p>
+    <>
+      <header className="header">
+        <div className="wrap">
+          <img
+            src={`${import.meta.env.BASE_URL}white_horz_logo.jpg`}
+            alt="Trident Preclinical Trials"
+            className="logo"
+          />
+          <h1 className="title">Data Hub</h1>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-6">
-          {/* Filters Section */}
-          <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">Filter Datasets</h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Dataset Type Filter */}
-              <div>
-                <label
-                  htmlFor="datasetType-filter"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Dataset Type
-                </label>
-                <select
-                  id="datasetType-filter"
-                  value={filters.datasetType || ''}
-                  onChange={(e) =>
-                    setFilters({ ...filters, datasetType: e.target.value || null })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">All Dataset Types</option>
-                  {datasetTypes.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Institution Filter */}
-              <div>
-                <label
-                  htmlFor="institution-filter"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Institution
-                </label>
-                <select
-                  id="institution-filter"
-                  value={filters.institution || ''}
-                  onChange={(e) =>
-                    setFilters({ ...filters, institution: e.target.value || null })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">All Institutions</option>
-                  {institutions.map((institution) => (
-                    <option key={institution} value={institution}>
-                      {institution}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Disease Filter */}
-              <div>
-                <label
-                  htmlFor="disease-filter"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Disease
-                </label>
-                <select
-                  id="disease-filter"
-                  value={filters.disease || ''}
-                  onChange={(e) =>
-                    setFilters({ ...filters, disease: e.target.value || null })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">All Diseases</option>
-                  {diseases.map((disease) => (
-                    <option key={disease} value={disease}>
-                      {disease}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Drug Filter */}
-              <div>
-                <label
-                  htmlFor="drug-filter"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Drug
-                </label>
-                <select
-                  id="drug-filter"
-                  value={filters.drug || ''}
-                  onChange={(e) =>
-                    setFilters({ ...filters, drug: e.target.value || null })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">All Drugs</option>
-                  {drugs.map((drug) => (
-                    <option key={drug} value={drug}>
-                      {drug}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Results Count */}
-            <div className="mt-4 text-sm text-gray-600">
-              Showing {filteredDatasets.length} of {datasets.length} datasets
-            </div>
+      <main className="wrap main">
+        <section aria-labelledby="filters-heading">
+          <h2 id="filters-heading" className="sr-only">
+            Filters
+          </h2>
+          <div className="filters">
+            {FILTERS.map((f) => (
+              <FilterField
+                key={f.key}
+                id={`f-${f.key}`}
+                label={f.label}
+                value={filters[f.key]}
+                options={f.options}
+                counts={optionCounts[f.key]}
+                onChange={(v) =>
+                  setFilters((prev) => ({ ...prev, [f.key]: v }))
+                }
+              />
+            ))}
           </div>
 
-          {/* Dataset Table */}
-          {filteredDatasets.length > 0 ? (
-            <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <tr key={headerGroup.id}>
-                        {headerGroup.headers.map((header) => (
-                          <th
-                            key={header.id}
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-                            onClick={header.column.getToggleSortingHandler()}
-                          >
-                            <div className="flex items-center gap-2">
-                              {flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                              {{
-                                asc: '↑',
-                                desc: '↓',
-                              }[header.column.getIsSorted() as string] ?? null}
-                            </div>
-                          </th>
-                        ))}
-                      </tr>
-                    ))}
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {table.getRowModel().rows.map((row) => (
-                      <tr key={row.id} className="hover:bg-gray-50 transition-colors">
-                        {row.getVisibleCells().map((cell) => (
-                          <td key={cell.id} className="px-6 py-4 whitespace-nowrap">
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg shadow p-12 text-center border border-gray-200">
-              <svg
-                className="mx-auto h-12 w-12 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No datasets found</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Try adjusting your filters to see more results.
-              </p>
+          {hasActiveFilters && (
+            <div className="chips" aria-label="Active filters">
+              {activeFilters.map((f) => (
+                <button
+                  key={f.key}
+                  type="button"
+                  className="chip"
+                  onClick={() => clearFilter(f.key)}
+                  aria-label={`Remove ${f.label} filter: ${f.value}`}
+                >
+                  <span className="chip-label">{f.label}:</span>
+                  <span className="chip-value">{f.value}</span>
+                  <span aria-hidden="true" className="chip-x">
+                    ×
+                  </span>
+                </button>
+              ))}
+              {activeFilters.length >= 2 && (
+                <button type="button" className="clear-all" onClick={clearAll}>
+                  Clear all
+                </button>
+              )}
             </div>
           )}
-        </div>
+        </section>
+
+        <p className="count" role="status" aria-live="polite">
+          Showing {filteredDatasets.length} of {datasets.length}
+        </p>
+
+        <section aria-labelledby="table-heading">
+          <h2 id="table-heading" className="sr-only">
+            Datasets
+          </h2>
+          {filteredDatasets.length > 0 ? (
+            <div className="table-wrap">
+              <table className="table">
+                <thead>
+                  {table.getHeaderGroups().map((hg) => (
+                    <tr key={hg.id}>
+                      {hg.headers.map((h) => {
+                        const s = h.column.getIsSorted() as
+                          | false
+                          | "asc"
+                          | "desc";
+                        const ariaSort =
+                          s === "asc"
+                            ? "ascending"
+                            : s === "desc"
+                              ? "descending"
+                              : "none";
+                        return (
+                          <th key={h.id} scope="col" aria-sort={ariaSort}>
+                            <button
+                              type="button"
+                              className="sort-btn"
+                              onClick={h.column.getToggleSortingHandler()}
+                            >
+                              {flexRender(
+                                h.column.columnDef.header,
+                                h.getContext(),
+                              )}
+                              <span
+                                className="sort-indicator"
+                                aria-hidden="true"
+                              >
+                                {s === "asc" ? "↑" : s === "desc" ? "↓" : "↕"}
+                              </span>
+                            </button>
+                          </th>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </thead>
+                <tbody>
+                  {table.getRowModel().rows.map((row) => (
+                    <tr key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <td key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="empty">
+              <p className="empty-msg">
+                {hasActiveFilters
+                  ? "No datasets match these filters."
+                  : "No datasets available."}
+              </p>
+              {hasActiveFilters && (
+                <button type="button" className="clear-all" onClick={clearAll}>
+                  Clear filters
+                </button>
+              )}
+            </div>
+          )}
+        </section>
       </main>
-    </div>
-  )
+    </>
+  );
 }
 
-export default App
+type FilterFieldProps = {
+  id: string;
+  label: string;
+  value: string | null;
+  options: readonly string[] | string[];
+  counts: Record<string, number>;
+  onChange: (v: string | null) => void;
+};
+
+function FilterField({
+  id,
+  label,
+  value,
+  options,
+  counts,
+  onChange,
+}: FilterFieldProps) {
+  return (
+    <div className="field">
+      <label htmlFor={id}>{label}</label>
+      <select
+        id={id}
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value || null)}
+      >
+        <option value="">All</option>
+        {options.map((o) => (
+          <option key={o} value={o}>
+            {o} ({counts[o] || 0})
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+export default App;

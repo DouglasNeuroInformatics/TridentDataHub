@@ -1,17 +1,18 @@
-import type { Dataset } from './types'
+import type { Dataset } from "./types";
 
 // Parse TSV data
 function parseTSV(tsvContent: string): Dataset[] {
-  const lines = tsvContent.trim().split('\n')
-  const headers = lines[0].split('\t')
-  
-  const datasets: Dataset[] = []
-  
+  const lines = tsvContent.trim().split("\n");
+
+  const datasets: Dataset[] = [];
+
   for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split('\t').map((v) => v.trim())
+    const values = lines[i].split("\t").map((v) => v.trim());
     if (values.length !== 9) {
-      console.warn(`Skipping malformed TSV row at Line ${i + 1}: expected 9 columns, got ${values.length}`)
-      continue
+      console.warn(
+        `Skipping malformed TSV row at Line ${i + 1}: expected 9 columns, got ${values.length}`,
+      );
+      continue;
     }
     const dataset: Dataset = {
       researcher: values[0],
@@ -23,34 +24,34 @@ function parseTSV(tsvContent: string): Dataset[] {
       disease: values[6],
       drug: values[7],
       url: values[8],
-    }
-    datasets.push(dataset)
+    };
+    datasets.push(dataset);
   }
-  
-  return datasets
+
+  return datasets;
 }
 
 // Import TSV file
-// @ts-ignore - Vite handles ?raw imports
-import dataTsvContent from './data.tsv?raw'
+// @ts-expecter-error - Vite handles ?raw imports
+import dataTsvContent from "./data.tsv?raw";
 
-export const datasets: Dataset[] = parseTSV(dataTsvContent)
+export const datasets: Dataset[] = parseTSV(dataTsvContent);
 
 // Debug: Check parsing
 if (import.meta.env.DEV) {
-  console.debug('Datasets parsed:', datasets.length)
+  console.debug("Datasets parsed:", datasets.length);
 }
 
 // Extract unique values for filters
 export const datasetTypes = Array.from(
   new Set(datasets.map((d) => d.datasetType)),
-).sort()
+).sort();
 export const institutions = Array.from(
   new Set(datasets.map((d) => d.institution)),
-).sort()
+).sort();
 export const diseases = Array.from(
   new Set(datasets.map((d) => d.disease).filter(Boolean)),
-).sort()
+).sort();
 export const drugs = Array.from(
   new Set(datasets.map((d) => d.drug).filter(Boolean)),
-).sort()
+).sort();
