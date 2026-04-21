@@ -2,30 +2,27 @@
 
 # TridentDataHub
 
-A modern web application for browsing and filtering research datasets with a clean, responsive interface.  
-https://douglasneuroinformatics.github.io/TridentDataHub/
-
-
+A web application for browsing and filtering research datasets. Built for [Trident Preclinical Trials](https://douglasneuroinformatics.github.io/TridentDataHub/).
 
 ## Dataset Schema
 
 ```typescript
 interface Dataset {
-  researcher: string; // Primary researcher name
-  researcherEmail: string; // Researcher email address
-  institution: string; // Research institution or organization
-  datasetName: string; // Name of the dataset
-  datasetDescription: string; // Detailed description of the dataset
-  datasetType: string; // Type/category of research data
-  disease: string; // Associated disease
-  drug: string; // Associated drug/intervention
-  url: string; // URL to access the dataset
+  researcher: string;
+  researcherEmail: string;
+  institution: string;
+  datasetName: string;
+  datasetDescription: string;
+  datasetType: string;
+  disease: string;
+  drug: string;
+  url: string;
 }
 ```
 
 ## Adding Datasets
 
-Datasets are stored in `src/data.tsv` using tab-separated values format.
+Datasets are stored in `src/data.tsv` using tab-separated values.
 
 ### TSV Format
 
@@ -44,42 +41,48 @@ Dr. Stephanie Tullo\ts.tullo@placeholder.ca\tDouglas\tDataset Name\tDescription 
 
 ## Features
 
-- **Multi-Filter System**: Filter by dataset type, institution, disease, and drug
-- **Sortable Columns**: Click column headers to sort ascending/descending
-- **Responsive Design**: Works on desktop, tablet, and mobile devices
-- **Clean Table Layout**: Professional styling with hover effects
-- **Email Integration**: Clickable email addresses for researcher contact
+- **Multi-filter system** — filter by dataset type, institution, disease, and drug
+- **Per-option counts** — filter dropdowns show how many rows match each option
+- **Sortable columns** — click column headers to sort ascending/descending
+- **Responsive design** — works on desktop, tablet, and mobile
+- **Clickable contact** — email addresses link directly to `mailto:`
 
 ## Development
 
-### Technical Stack
+### Tech Stack
 
-- **React 19** with TypeScript
-- **Vite** for fast development and building
-- **TanStack Table** for advanced table functionality
+- **React 19** + TypeScript
+- **Vite** for development and building
+- **TanStack Table** for data grid functionality
+- **pnpm** for package management
 
 ### Project Structure
 
 ```
 TridentDataHub/
 ├── src/
-│   ├── types.ts          # TypeScript type definitions
-│   ├── data.tsv          # Dataset data (tab-separated values)
-│   ├── data.ts           # TSV parser and filter exports
-│   ├── App.tsx           # Main application component
-│   ├── main.tsx          # Application entry point
-│   ├── styles.css        # Global styles and CSS variables
-│   └── index.css         # Additional styles
-├── index.html            # HTML template
-├── package.json          # Dependencies and scripts
-└── vite.config.ts        # Vite configuration
+│   ├── types.ts          # Dataset and FilterState type definitions
+│   ├── data.tsv           # Dataset records (tab-separated values)
+│   ├── data.ts            # TSV parser and filter option exports
+│   ├── App.tsx            # Main application component
+│   ├── main.tsx           # Entry point
+│   ├── styles.css         # Global styles and CSS variables
+│   └── index.css          # Base styles
+├── public/
+│   ├── white_horz_logo.jpg
+│   └── trident-icon.svg
+├── index.html
+├── package.json
+├── pnpm-lock.yaml
+└── vite.config.ts
 ```
 
 ### Available Scripts
 
 ```bash
-npm install              # Install dependencies
-npm run dev             # Start development server
-npm run build           # Build for production
-npm run preview         # Preview production build
+pnpm install              # Install dependencies
+pnpm dev                  # Start development server
+pnpm build                # Build for production
+pnpm preview              # Preview production build
+pnpm lint                 # Run ESLint
 ```
