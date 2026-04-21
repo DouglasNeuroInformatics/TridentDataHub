@@ -5,8 +5,6 @@ import {
   getSortedRowModel,
   flexRender,
   createColumnHelper,
-  type SortingState,
-  type ColumnDef,
 } from "@tanstack/react-table";
 import { datasets, datasetTypes, institutions, diseases, drugs } from "./data";
 import type { Dataset, FilterState } from "./types";
@@ -32,7 +30,7 @@ const EMPTY_FILTERS: FilterState = {
 
 const columnHelper = createColumnHelper<Dataset>();
 
-const columns: ColumnDef<Dataset, any>[] = [
+const columns = [
   columnHelper.accessor("researcher", { header: "Researcher" }),
   columnHelper.accessor("researcherEmail", {
     header: "Email",
@@ -163,7 +161,7 @@ function App() {
             alt="Trident Preclinical Trials"
             className="logo"
           />
-          <div className="title">Data Hub</div>
+          <h1 className="title">Data Hub</h1>
         </div>
       </header>
 
