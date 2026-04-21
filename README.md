@@ -1,8 +1,6 @@
-
-
 # TridentDataHub
 
-A web application for browsing and filtering research datasets. Built for [Trident Preclinical Trials](https://douglasneuroinformatics.github.io/TridentDataHub/).
+A web application for browsing and filtering research datasets. Find it here: [Trident Data Hub](https://douglasneuroinformatics.github.io/TridentDataHub/).
 
 ## Dataset Schema
 
@@ -86,3 +84,4 @@ pnpm build                # Build for production
 pnpm preview              # Preview production build
 pnpm lint                 # Run ESLint
 ```
+
