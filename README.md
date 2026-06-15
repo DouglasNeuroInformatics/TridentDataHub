@@ -15,6 +15,7 @@ interface Dataset {
   disease: string;
   drug: string;
   url: string;
+  tags: string[];
 }
 ```
 
@@ -46,8 +47,7 @@ SHEET_ID=<sheet-id> pnpm sync
 
 ## Features
 
-- **Multi-filter system** — filter by dataset type, institution, disease, and drug
-- **Per-option counts** — filter dropdowns show how many rows match each option
+- **Tag-based filtering** — filter by institution and custom tags using clickable pills
 - **Sortable columns** — click column headers to sort ascending/descending
 - **Responsive design** — works on desktop, tablet, and mobile
 - **Clickable contact** — email addresses link directly to `mailto:`
