@@ -13,14 +13,16 @@ if (!SHEET_ID) {
 const EXPORT_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=tsv&gid=${GID}`;
 
 const PLACEHOLDER_EMAIL = "placeholder@placeholder.ca";
-const EMAIL_COL = 1; // 0-indexed: researcherEmail is the second column
+const EMAIL_HEADER = "Researcher Email";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT_PATH = resolve(__dirname, "../src/data.tsv");
 
 async function main() {
   console.log("Fetching sheet...");
-  const res = await fetch(EXPORT_URL);
+  const res = await fetch(EXPORT_URL, {
+    signal: AbortSignal.timeout(30_000),
+  });
   if (!res.ok) {
     throw new Error(`Failed to fetch sheet: ${res.status} ${res.statusText}`);
   }
@@ -28,11 +30,17 @@ async function main() {
   const tsv = await res.text();
   const lines = tsv.split("\n");
 
+  const headers = lines[0]?.split("\t").map((c) => c.trim()) ?? [];
+  const emailCol = headers.indexOf(EMAIL_HEADER);
+  if (emailCol === -1) {
+    throw new Error(`Header validation failed: '${EMAIL_HEADER}' column not found`);
+  }
+
   const scrubbed = lines.map((line, i) => {
-    if (i === 0) return line; // header row
+    if (i === 0) return line;
     const cols = line.split("\t");
-    if (cols.length > EMAIL_COL) {
-      cols[EMAIL_COL] = PLACEHOLDER_EMAIL;
+    if (cols.length > emailCol) {
+      cols[emailCol] = PLACEHOLDER_EMAIL;
     }
     return cols.join("\t");
   });
