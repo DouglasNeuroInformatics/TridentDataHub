@@ -20,13 +20,20 @@ interface Dataset {
 
 ## Adding Datasets
 
-Datasets are stored in `src/data.tsv` using tab-separated values.
+Datasets are managed in a Google Sheet and synced to `src/data.tsv` via a script that scrubs researcher emails before committing.
 
-### TSV Format
+### Syncing from Google Sheet
 
-```tsv
-researcher\tresearcherEmail\tinstitution\tdatasetName\tdatasetDescription\tdatasetType\tdisease\tdrug\turl
-Dr. Stephanie Tullo\ts.tullo@placeholder.ca\tDouglas\tDataset Name\tDescription here\tDataset Type\tDisease\tDrug\thttps://doi.org/10.xxxx/xxxxxx
+**Via GitHub Actions (recommended):**
+
+1. Add the sheet ID as a repository variable: `SHEET_ID`
+2. Go to **Actions > Sync Google Sheet > Run workflow**
+3. The workflow fetches the sheet, scrubs emails, and commits the updated `data.tsv`. The site redeploys automatically.
+
+**Locally:**
+
+```bash
+SHEET_ID=<sheet-id> pnpm sync
 ```
 
 ### Field Guidelines
@@ -69,6 +76,8 @@ TridentDataHub/
 ├── public/
 │   ├── white_horz_logo.jpg
 │   └── trident-icon.svg
+├── scripts/
+│   └── sync-sheet.ts      # Fetches Google Sheet and scrubs emails
 ├── index.html
 ├── package.json
 ├── pnpm-lock.yaml
@@ -83,5 +92,6 @@ pnpm dev                  # Start development server
 pnpm build                # Build for production
 pnpm preview              # Preview production build
 pnpm lint                 # Run ESLint
+pnpm sync                 # Sync data from Google Sheet (requires SHEET_ID env var)
 ```
 
