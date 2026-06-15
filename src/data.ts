@@ -8,12 +8,12 @@ function parseTSV(tsvContent: string): Dataset[] {
 
   for (let i = 1; i < lines.length; i++) {
     const values = lines[i].split("\t").map((v) => v.trim());
-    if (values.length !== 9) {
+    if (values.length < 9) {
       console.warn(
         `Skipping malformed TSV row at Line ${i + 1}: expected 9 columns, got ${values.length}`,
       );
-      continue;
-    }
+    continue;
+}
     const dataset: Dataset = {
       researcher: values[0],
       researcherEmail: values[1],
@@ -24,6 +24,9 @@ function parseTSV(tsvContent: string): Dataset[] {
       disease: values[6],
       drug: values[7],
       url: values[8],
+      tags: [
+        ...(values[9] ? values[9].split(",").map((t) => t.trim()).filter(Boolean) : []),
+      ],
     };
     datasets.push(dataset);
   }
@@ -42,16 +45,9 @@ if (import.meta.env.DEV) {
   console.debug("Datasets parsed:", datasets.length);
 }
 
-// Extract unique values for filters
-export const datasetTypes = Array.from(
-  new Set(datasets.map((d) => d.datasetType)),
+export const allTags = Array.from(
+  new Set(datasets.flatMap((d) => d.tags))
 ).sort();
-export const institutions = Array.from(
-  new Set(datasets.map((d) => d.institution)),
-).sort();
-export const diseases = Array.from(
-  new Set(datasets.map((d) => d.disease).filter(Boolean)),
-).sort();
-export const drugs = Array.from(
-  new Set(datasets.map((d) => d.drug).filter(Boolean)),
+export const allInstitutions = Array.from(
+  new Set(datasets.map((d) => d.institution).filter(Boolean))
 ).sort();
