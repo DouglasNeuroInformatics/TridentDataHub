@@ -12,7 +12,9 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "preview:pages": "vite build && vite preview --base=/TridentDataHub/"
+    "preview:pages": "vite build && vite preview --base=/TridentDataHub/",
+    "sync": "pnpm dlx tsx scripts/sync-sheet.ts",
+    "sync:help": "echo 'Usage: SHEET_ID=<id> pnpm sync'"
   },
   "dependencies": {
     "@tanstack/react-router": "^1.168.23",
