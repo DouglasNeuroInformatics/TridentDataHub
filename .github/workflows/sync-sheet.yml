@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   sync:
@@ -28,6 +29,7 @@ jobs:
           SHEET_ID: ${{ vars.SHEET_ID }}
 
       - name: Commit if changed
+        id: commit
         run: |
           git diff --quiet src/data.tsv && echo "No changes" && exit 0
           git config user.name "github-actions[bot]"
@@ -35,3 +37,10 @@ jobs:
           git add src/data.tsv
           git commit -m "sync: update dataset from Google Sheet"
           git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Trigger deploy
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main
