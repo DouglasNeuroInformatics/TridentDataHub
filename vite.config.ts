@@ -6,6 +6,6 @@ export default defineConfig({
   // Update this base path to match your GitHub repository name
   // For https://username.github.io/TridentDataHub/, use '/TridentDataHub/'
   // For https://username.github.io/, use '/'
-  base: '/TridentDataHub/',
+  base: '/',
   plugins: [react()],
 })
