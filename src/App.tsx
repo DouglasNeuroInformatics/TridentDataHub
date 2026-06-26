@@ -159,6 +159,12 @@ function App() {
       </header>
 
       <main className="wrap main">
+        <p className="preamble">
+          The Trident Data Hub is a catalogue of open research datasets from the Trident
+          Preclinical Trials network. Filter by institution and tags, sort the columns, and
+          follow the source links to access each dataset at its repository.
+        </p>
+
         <div className="tag-bar">
           <span className="tag-bar-label">Institution</span>
           <ModeToggle mode={institutionMode} onChange={setInstitutionMode} />
