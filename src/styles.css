@@ -213,8 +213,8 @@ a {
 }
 
 /* Column sizing — order matches App.tsx columns:
-   1 Researcher  2 Email  3 Institution  4 Dataset  5 Description
-   6 Type  7 Disease  8 Drug  9 Source */
+   1 Researcher  2 Institution  3 Dataset  4 Description
+   5 Type  6 Disease  7 Drug  8 Source */
 .table th:nth-child(1),
 .table td:nth-child(1) {
   min-width: 140px;
@@ -223,16 +223,16 @@ a {
 .table td:nth-child(2) {
   min-width: 180px;
 }
+.table th:nth-child(3),
+.table td:nth-child(3) {
+  min-width: 200px;
+}
 .table th:nth-child(4),
 .table td:nth-child(4) {
-  min-width: 200px;
+  width: 320px;
 }
 .table th:nth-child(5),
 .table td:nth-child(5) {
-  width: 320px;
-}
-.table th:nth-child(6),
-.table td:nth-child(6) {
   min-width: 200px;
 }
 

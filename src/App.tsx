@@ -16,14 +16,6 @@ const columnHelper = createColumnHelper<Dataset>();
 
 const columns = [
   columnHelper.accessor("researcher", { header: "Researcher" }),
-  columnHelper.accessor("researcherEmail", {
-    header: "Email",
-    cell: (info) => (
-      <a href={`mailto:${info.getValue()}`} className="link">
-        {info.getValue()}
-      </a>
-    ),
-  }),
   columnHelper.accessor("institution", { header: "Institution" }),
   columnHelper.accessor("datasetName", { header: "Dataset" }),
   columnHelper.accessor("datasetDescription", {
