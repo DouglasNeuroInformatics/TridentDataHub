@@ -149,12 +149,20 @@ function App() {
     <>
       <header className="header">
         <div className="wrap">
-          <img
-            src={`${import.meta.env.BASE_URL}white_horz_logo.jpg`}
-            alt="Trident Preclinical Trials"
-            className="logo"
-          />
-          <h1 className="title">Data Hub</h1>
+          <a
+            href="https://www.tridentpreclinicaltrials.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="home-link"
+            aria-label="Trident Preclinical Trials home"
+          >
+            <img
+              src={`${import.meta.env.BASE_URL}white_horz_logo.jpg`}
+              alt="Trident Preclinical Trials"
+              className="logo"
+            />
+            <h1 className="title">Data Hub</h1>
+          </a>
         </div>
       </header>
 
