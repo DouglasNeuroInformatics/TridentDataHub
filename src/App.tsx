@@ -14,6 +14,29 @@ import "./styles.css";
 
 const columnHelper = createColumnHelper<Dataset>();
 
+// Trailing path segments that carry no identifying information.
+const NOISE_SEGMENTS = new Set(["overview", "view", "files", "record", "records"]);
+
+// Show the meaningful part of a source URL (the DOI / record / repo identifier)
+// rather than the bare host. Falls back to the raw string on parse failure.
+function formatSourceLabel(url: string): string {
+  try {
+    const u = new URL(url);
+    const host = u.host.replace(/^www\./, "");
+    const segments = u.pathname.split("/").filter(Boolean);
+
+    // DOIs: the path *is* the identifier, e.g. 10.5281/zenodo.14655730
+    if (host === "doi.org") return segments.join("/") || host;
+
+    // Otherwise host + meaningful path, e.g. osf.io/tyhce,
+    // github.com/vik16nathan/allen_connectome_qc
+    const meaningful = segments.filter((s) => !NOISE_SEGMENTS.has(s.toLowerCase()));
+    return meaningful.length ? `${host}/${meaningful.join("/")}` : host;
+  } catch {
+    return url;
+  }
+}
+
 const columns = [
   columnHelper.accessor("researcher", { header: "Researcher" }),
   columnHelper.accessor("institution", { header: "Institution" }),
@@ -40,13 +63,9 @@ const columns = [
     cell: (info) => {
       const url = info.getValue();
       if (!url) return <span className="null">—</span>;
-      let display = url;
-      try {
-        display = new URL(url).host.replace(/^www\./, "");
-      } catch { /* keep raw */ }
       return (
         <a href={url} target="_blank" rel="noopener noreferrer" className="link">
-          {display}
+          {formatSourceLabel(url)}
         </a>
       );
     },
