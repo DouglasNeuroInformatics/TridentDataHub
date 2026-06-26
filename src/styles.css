@@ -297,6 +297,39 @@ a {
   margin: 0;
 }
 
+/* Footer */
+.footer {
+  border-top: 1px solid var(--rule);
+  padding: 24px 32px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  transition: color 0.15s;
+}
+
+.footer-link:hover {
+  color: var(--text);
+}
+
+.footer-icon {
+  display: block;
+}
+
+.footer-sep {
+  color: var(--text-dim);
+}
+
 /* Focus */
 :focus-visible {
   outline: 2px solid var(--brand);
