@@ -12,6 +12,26 @@ import type { Dataset } from "./types";
 import "./styles.css";
 
 
+type MatchMode = "AND" | "OR";
+
+function ModeToggle({ mode, onChange }: { mode: MatchMode; onChange: (m: MatchMode) => void }) {
+  return (
+    <span className="mode-toggle" role="group" aria-label="Match mode">
+      {(["AND", "OR"] as const).map((m) => (
+        <button
+          key={m}
+          type="button"
+          className={`mode-btn ${mode === m ? "mode-btn--active" : ""}`}
+          aria-pressed={mode === m}
+          onClick={() => onChange(m)}
+        >
+          {m}
+        </button>
+      ))}
+    </span>
+  );
+}
+
 const columnHelper = createColumnHelper<Dataset>();
 
 // Trailing path segments that carry no identifying information.
@@ -75,6 +95,8 @@ const columns = [
 function App() {
   const [activeInstitutions, setActiveInstitutions] = useState<Set<string>>(new Set());
   const [activeCustomTags, setActiveCustomTags] = useState<Set<string>>(new Set());
+  const [institutionMode, setInstitutionMode] = useState<MatchMode>("OR");
+  const [tagMode, setTagMode] = useState<MatchMode>("AND");
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const toggleTag = (tag: string, isInstitution: boolean) => {
@@ -93,11 +115,23 @@ function App() {
   const filteredDatasets = useMemo(
     () =>
       datasets.filter((d) => {
-        if (activeInstitutions.size > 0 && !activeInstitutions.has(d.institution)) return false;
-        if (activeCustomTags.size > 0 && ![...activeCustomTags].every(t => d.tags.includes(t))) return false;
+        if (activeInstitutions.size > 0) {
+          const insts = [...activeInstitutions];
+          const ok = institutionMode === "OR"
+            ? insts.some((i) => i === d.institution)
+            : insts.every((i) => i === d.institution);
+          if (!ok) return false;
+        }
+        if (activeCustomTags.size > 0) {
+          const tags = [...activeCustomTags];
+          const ok = tagMode === "AND"
+            ? tags.every((t) => d.tags.includes(t))
+            : tags.some((t) => d.tags.includes(t));
+          if (!ok) return false;
+        }
         return true;
       }),
-    [activeInstitutions, activeCustomTags],
+    [activeInstitutions, activeCustomTags, institutionMode, tagMode],
   );
 
 
@@ -127,6 +161,7 @@ function App() {
       <main className="wrap main">
         <div className="tag-bar">
           <span className="tag-bar-label">Institution</span>
+          <ModeToggle mode={institutionMode} onChange={setInstitutionMode} />
           {allInstitutions.map(tag => (
             <button
               key={tag}
@@ -145,9 +180,10 @@ function App() {
           )}
         </div>
 
-        {/* Custom tag pills — AND */}
+        {/* Custom tag pills — AND/OR selectable */}
         <div className="tag-bar">
           <span className="tag-bar-label">Tags</span>
+          <ModeToggle mode={tagMode} onChange={setTagMode} />
           {allTags.map(tag => (
             <button
               key={tag}

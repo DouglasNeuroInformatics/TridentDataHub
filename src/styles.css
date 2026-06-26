@@ -320,3 +320,33 @@ a {
   border-color: var(--brand);
   color: #fff;
 }
+
+/* AND/OR match-mode toggle */
+.mode-toggle {
+  display: inline-flex;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-right: 4px;
+}
+
+.mode-btn {
+  padding: 3px 10px;
+  background: var(--surface);
+  border: 0;
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.mode-btn:hover {
+  color: var(--text);
+}
+
+.mode-btn--active {
+  background: var(--rule-strong);
+  color: var(--text);
+}
