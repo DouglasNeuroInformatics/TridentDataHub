@@ -124,9 +124,10 @@ a {
 /* Preamble */
 .preamble {
   max-width: 70ch;
+  margin: 0 auto 24px;
+  text-align: center;
   color: var(--text-muted);
   font-size: 14px;
-  margin-bottom: 24px;
 }
 
 /* Count */
