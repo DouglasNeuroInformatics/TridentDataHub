@@ -64,10 +64,22 @@ a {
   padding: 20px 0;
 }
 
+.home-link {
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
+}
+
 .title {
   margin-top: 8px;
   font-size: 1.2rem;
   font-weight: 500;
+  text-align: center;
+  transition: color 0.15s;
+}
+
+.home-link:hover .title {
+  color: var(--brand);
 }
 
 .logo {
@@ -107,6 +119,15 @@ a {
 
 .clear-all:hover {
   color: var(--text);
+}
+
+/* Preamble */
+.preamble {
+  max-width: 70ch;
+  margin: 0 auto 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
 }
 
 /* Count */
@@ -213,8 +234,8 @@ a {
 }
 
 /* Column sizing — order matches App.tsx columns:
-   1 Researcher  2 Email  3 Institution  4 Dataset  5 Description
-   6 Type  7 Disease  8 Drug  9 Source */
+   1 Researcher  2 Institution  3 Dataset  4 Description
+   5 Type  6 Disease  7 Drug  8 Source */
 .table th:nth-child(1),
 .table td:nth-child(1) {
   min-width: 140px;
@@ -223,16 +244,16 @@ a {
 .table td:nth-child(2) {
   min-width: 180px;
 }
+.table th:nth-child(3),
+.table td:nth-child(3) {
+  min-width: 200px;
+}
 .table th:nth-child(4),
 .table td:nth-child(4) {
-  min-width: 200px;
+  width: 320px;
 }
 .table th:nth-child(5),
 .table td:nth-child(5) {
-  width: 320px;
-}
-.table th:nth-child(6),
-.table td:nth-child(6) {
   min-width: 200px;
 }
 
@@ -277,6 +298,39 @@ a {
   margin: 0;
 }
 
+/* Footer */
+.footer {
+  border-top: 1px solid var(--rule);
+  padding: 24px 32px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  transition: color 0.15s;
+}
+
+.footer-link:hover {
+  color: var(--text);
+}
+
+.footer-icon {
+  display: block;
+}
+
+.footer-sep {
+  color: var(--text-dim);
+}
+
 /* Focus */
 :focus-visible {
   outline: 2px solid var(--brand);
@@ -319,4 +373,34 @@ a {
   background: var(--brand);
   border-color: var(--brand);
   color: #fff;
+}
+
+/* AND/OR match-mode toggle */
+.mode-toggle {
+  display: inline-flex;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-right: 4px;
+}
+
+.mode-btn {
+  padding: 3px 10px;
+  background: var(--surface);
+  border: 0;
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.mode-btn:hover {
+  color: var(--text);
+}
+
+.mode-btn--active {
+  background: var(--rule-strong);
+  color: var(--text);
 }

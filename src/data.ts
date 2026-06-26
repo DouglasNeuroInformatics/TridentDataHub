@@ -14,6 +14,11 @@ const HEADER_MAP: Record<string, keyof Dataset> = {
   "Tags": "tags",
 };
 
+// Treat placeholder "not applicable" markers as empty so the UI shows its
+// em-dash fallback instead of a literal "NA".
+const NA_VALUES = new Set(["na", "n/a", "n.a.", "none", "-"]);
+const clean = (v: string) => (NA_VALUES.has(v.trim().toLowerCase()) ? "" : v.trim());
+
 function parseTSV(tsvContent: string): Dataset[] {
   const lines = tsvContent.trim().split("\n");
   const headers = lines[0].split("\t").map((h) => h.trim());
@@ -35,8 +40,9 @@ function parseTSV(tsvContent: string): Dataset[] {
     const values = lines[i].split("\t").map((v) => v.trim());
     const col = (key: keyof Dataset) => {
       const idx = colIndex[key];
-      return idx >= 0 ? values[idx] ?? "" : "";
+      return idx >= 0 ? clean(values[idx] ?? "") : "";
     };
+    const tagsRaw = colIndex.tags >= 0 ? (values[colIndex.tags] ?? "") : "";
     const dataset: Dataset = {
       researcher: col("researcher"),
       researcherEmail: col("researcherEmail"),
@@ -47,7 +53,10 @@ function parseTSV(tsvContent: string): Dataset[] {
       disease: col("disease"),
       drug: col("drug"),
       url: col("url"),
-      tags: col("tags") ? col("tags").split(",").map((t) => t.trim()).filter(Boolean) : [],
+      tags: tagsRaw
+        .split(",")
+        .map((t) => clean(t))
+        .filter(Boolean),
     };
     datasets.push(dataset);
   }
