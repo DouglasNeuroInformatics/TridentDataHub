@@ -28,7 +28,10 @@ async function main() {
   }
 
   const tsv = await res.text();
-  const lines = tsv.split("\n");
+  // Google exports CRLF. Normalise to LF so the committed file is stable and
+  // diffs show only the rows that actually changed. Drop any trailing blank
+  // line so a single trailing newline is written below.
+  const lines = tsv.replace(/\r\n/g, "\n").replace(/\n+$/, "").split("\n");
 
   const headers = lines[0]?.split("\t").map((c) => c.trim()) ?? [];
   const emailCol = headers.indexOf(EMAIL_HEADER);
@@ -45,7 +48,7 @@ async function main() {
     return cols.join("\t");
   });
 
-  writeFileSync(OUT_PATH, scrubbed.join("\n"));
+  writeFileSync(OUT_PATH, scrubbed.join("\n") + "\n");
   const dataRows = lines.length - 1;
   console.log(`Wrote ${dataRows} rows to src/data.tsv (emails scrubbed)`);
 }

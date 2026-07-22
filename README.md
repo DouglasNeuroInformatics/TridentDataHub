@@ -64,7 +64,7 @@ Run it early with **Actions > Sync Google Sheet > Run workflow**.
 
 - Repository variable `SHEET_ID` — the sheet's ID from its URL.
 - Repository variable `SHEET_GID` — optional, only if the data is not on the first tab.
-- Settings > Actions > General: enable **Allow GitHub Actions to create and approve pull requests**, or the PR step fails.
+- Settings > Actions > General > **Allow GitHub Actions to create and approve pull requests** must stay enabled, or the PR step fails.
 
 ### Running locally
 
