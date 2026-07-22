@@ -3,7 +3,9 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const SHEET_ID = process.env.SHEET_ID;
-const GID = process.env.SHEET_GID ?? "0";
+// `||` not `??`: an unset GitHub Actions variable arrives as an empty string,
+// which would otherwise build a `&gid=` URL and 400.
+const GID = process.env.SHEET_GID || "0";
 
 if (!SHEET_ID) {
   console.error("SHEET_ID environment variable is required");
@@ -28,7 +30,10 @@ async function main() {
   }
 
   const tsv = await res.text();
-  const lines = tsv.split("\n");
+  // Google exports CRLF. Normalise to LF so the committed file is stable and
+  // diffs show only the rows that actually changed. Drop any trailing blank
+  // line so a single trailing newline is written below.
+  const lines = tsv.replace(/\r\n/g, "\n").replace(/\n+$/, "").split("\n");
 
   const headers = lines[0]?.split("\t").map((c) => c.trim()) ?? [];
   const emailCol = headers.indexOf(EMAIL_HEADER);
@@ -45,7 +50,7 @@ async function main() {
     return cols.join("\t");
   });
 
-  writeFileSync(OUT_PATH, scrubbed.join("\n"));
+  writeFileSync(OUT_PATH, scrubbed.join("\n") + "\n");
   const dataRows = lines.length - 1;
   console.log(`Wrote ${dataRows} rows to src/data.tsv (emails scrubbed)`);
 }
