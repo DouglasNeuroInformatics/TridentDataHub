@@ -3,7 +3,9 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const SHEET_ID = process.env.SHEET_ID;
-const GID = process.env.SHEET_GID ?? "0";
+// `||` not `??`: an unset GitHub Actions variable arrives as an empty string,
+// which would otherwise build a `&gid=` URL and 400.
+const GID = process.env.SHEET_GID || "0";
 
 if (!SHEET_ID) {
   console.error("SHEET_ID environment variable is required");
