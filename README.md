@@ -2,7 +2,7 @@
 
 A searchable, public catalogue of research datasets from the Trident network. Browse it here: [data.tridentpreclinicaltrials.org](https://data.tridentpreclinicaltrials.org/).
 
-The site does not host data. Each entry is a short description plus a link to wherever the data actually lives (Zenodo, OSF, a DOI, an institutional repository).
+The site does not host data. Each entry is a short description plus a link to wherever the data actually lives (Zenodo, OSF, Hugging Face, a DOI, an institutional repository).
 
 ---
 
