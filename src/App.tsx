@@ -48,6 +48,14 @@ function formatSourceLabel(url: string): string {
     // DOIs: the path *is* the identifier, e.g. 10.5281/zenodo.14655730
     if (host === "doi.org") return segments.join("/") || host;
 
+    // Hugging Face: trim to the repo id, dropping /tree/main, /blob/..., /viewer
+    // etc. Datasets and Spaces carry a type prefix; models are bare org/name.
+    if (host === "huggingface.co" || host === "hf.co") {
+      const isTyped = segments[0] === "datasets" || segments[0] === "spaces";
+      const repo = segments.slice(0, isTyped ? 3 : 2);
+      return repo.length ? `huggingface.co/${repo.join("/")}` : "huggingface.co";
+    }
+
     // Otherwise host + meaningful path, e.g. osf.io/tyhce,
     // github.com/vik16nathan/allen_connectome_qc
     const meaningful = segments.filter((s) => !NOISE_SEGMENTS.has(s.toLowerCase()));
